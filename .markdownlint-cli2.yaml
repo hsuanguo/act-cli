@@ -1,0 +1,11 @@
+config:
+  line-length: false             # MD013 — conflicts with prose
+  no-inline-html: false          # MD033 — common in GitHub markdown
+  first-line-heading: false      # MD041 — files may start with frontmatter
+  no-duplicate-heading: false    # MD024 — common in spec/task files
+  no-trailing-spaces: false      # already handled by trailing-whitespace hook
+  fenced-code-language: false    # MD040 — not all code fences need a language
+  blanks-around-fences: false    # MD031 — conflicts with code fences inside list items
+  no-bare-urls: false            # MD034 — bare URLs are fine in docs
+  no-emphasis-as-heading: false  # MD036 — conflicts with common writing style
+  ol-prefix: false               # MD029 — conflicts with common list formatting
