@@ -32,18 +32,19 @@ uv run ruff format .
 
 **Module responsibilities:**
 
-| Module | Role |
-|--------|------|
-| `act/cli.py` | Typer app with `sync` and `version` commands |
-| `act/config.py` | Load & validate manifest (`act.toml`, `agent.toml`, or `pyproject.toml [tool.act]`) |
+| Module               | Role                                                                                                    |
+| -------------------- | ------------------------------------------------------------------------------------------------------- |
+| `act/cli.py`         | Typer app with `sync` and `version` commands                                                            |
+| `act/config.py`      | Load & validate manifest (`act.toml`, `agent.toml`, or `pyproject.toml [tool.act]`)                     |
 | `act/coordinates.py` | Parse GitHub coordinate strings into `ParsedCoordinate` (three formats: repo root, subdir, single file) |
-| `act/frontmatter.py` | Extract YAML frontmatter from `SKILL.md`; validate that `name` matches the manifest key |
-| `act/install.py` | Clone repo → copy files → validate → clean up temp dir |
-| `act/sync.py` | Orchestrate all installs; invoke `uv tool install` / `npm -g install` for tool dependencies |
+| `act/frontmatter.py` | Extract YAML frontmatter from `SKILL.md`; validate that `name` matches the manifest key                 |
+| `act/install.py`     | Clone repo → copy files → validate → clean up temp dir                                                  |
+| `act/sync.py`        | Orchestrate all installs; invoke `uv tool install` / `npm -g install` for tool dependencies             |
 
 **Manifest discovery order:** `act.toml` → `agent.toml` → `pyproject.toml` (under `[tool.act]`).
 
 **Coordinate formats** (value in `[skills]`):
+
 - `owner/repo` — entire repo root
 - `owner/repo/path/to/dir` — subdirectory
 - `owner/repo/path/to/SKILL.md` — single file

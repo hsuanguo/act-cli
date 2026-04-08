@@ -21,7 +21,7 @@ def test_subdir_skill_copy(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> N
     skill_dir = fixture / "skills" / "foo"
     skill_dir.mkdir(parents=True)
     (skill_dir / "SKILL.md").write_text(
-        '---\nname: foo\ndescription: d\n---\n\n# Foo\n',
+        "---\nname: foo\ndescription: d\n---\n\n# Foo\n",
         encoding="utf-8",
     )
 
@@ -40,7 +40,7 @@ def test_name_mismatch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     skill_dir = fixture / "skills" / "foo"
     skill_dir.mkdir(parents=True)
     (skill_dir / "SKILL.md").write_text(
-        '---\nname: other\ndescription: d\n---\n',
+        "---\nname: other\ndescription: d\n---\n",
         encoding="utf-8",
     )
 

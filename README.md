@@ -81,13 +81,13 @@ ruff = "ruff@0.8.0"
 
 ## Commands
 
-| Command | Purpose |
-|--------|---------|
-| `act` | Same as **`act sync`** (default). |
-| `act sync` | Read the resolved manifest, clone skills, copy into **`.claude/skills/<key>/`**, run **`uv tool install`** / **`npm -g install`**. |
-| `act version` | Print version and **`[project].name`** when a manifest exists. |
-| `act -f path/to.toml` | Use that manifest file (any `*.toml`; **`pyproject.toml`** uses **`[tool.act]`**). |
-| `act -C /project/root` | Project root (default: cwd). |
+| Command                | Purpose                                                                                                                            |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `act`                  | Same as **`act sync`** (default).                                                                                                  |
+| `act sync`             | Read the resolved manifest, clone skills, copy into **`.claude/skills/<key>/`**, run **`uv tool install`** / **`npm -g install`**. |
+| `act version`          | Print version and **`[project].name`** when a manifest exists.                                                                     |
+| `act -f path/to.toml`  | Use that manifest file (any `*.toml`; **`pyproject.toml`** uses **`[tool.act]`**).                                                 |
+| `act -C /project/root` | Project root (default: cwd).                                                                                                       |
 
 ## Coordinate forms
 
@@ -103,4 +103,4 @@ Each run will refresh the installed skills and tools.
 
 ## Compared to manual copy
 
-You keep a single declarative file and a repeatable install path instead of copying trees and remembering **`uv` / `npm`** steps by hand. 
+You keep a single declarative file and a repeatable install path instead of copying trees and remembering **`uv` / `npm`** steps by hand.

@@ -10,7 +10,9 @@ from act import __version__
 from act.config import find_default_manifest, load_act_toml
 from act.sync import run_sync
 
-_MANIFEST_HELP = "Manifest path (default: act.toml, else agent.toml, else pyproject.toml [tool.act])"
+_MANIFEST_HELP = (
+    "Manifest path (default: act.toml, else agent.toml, else pyproject.toml [tool.act])"
+)
 
 
 def _resolve_manifest(root: Path, file: Path | None) -> Path:
@@ -29,6 +31,7 @@ def _resolve_manifest(root: Path, file: Path | None) -> Path:
         )
         raise typer.Exit(1)
     return mf
+
 
 app = typer.Typer(
     help="Agent Configuration Toolkit — sync skills and CLI tools from a manifest",

@@ -38,7 +38,9 @@ def _parse_act_root(data: dict[str, Any]) -> ActConfig:
     skills_raw = data.get("skills")
     if not isinstance(skills_raw, dict):
         skills_raw = {}
-    skills: dict[str, str] = {str(k): str(v).strip() for k, v in skills_raw.items() if str(v).strip()}
+    skills: dict[str, str] = {
+        str(k): str(v).strip() for k, v in skills_raw.items() if str(v).strip()
+    }
 
     deps = data.get("dependencies") or {}
     if not isinstance(deps, dict):
