@@ -85,9 +85,34 @@ ruff = "ruff@0.8.0"
 | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
 | `act`                  | Same as **`act sync`** (default).                                                                                                  |
 | `act sync`             | Read the resolved manifest, clone skills, copy into **`.claude/skills/<key>/`**, run **`uv tool install`** / **`npm -g install`**. |
+| `act get-skill <src>`  | Fetch a single skill from a GitHub URL or coordinate into **`.claude/skills/<key>/`**.                                             |
 | `act version`          | Print version and **`[project].name`** when a manifest exists.                                                                     |
 | `act -f path/to.toml`  | Use that manifest file (any `*.toml`; **`pyproject.toml`** uses **`[tool.act]`**).                                                 |
 | `act -C /project/root` | Project root (default: cwd).                                                                                                       |
+
+## `act get-skill`
+
+Grab a skill ad-hoc without editing the manifest:
+
+```bash
+# Full GitHub URL
+act get-skill https://github.com/existential-birds/beagle/tree/main/plugins/beagle-core/skills/docling
+
+# Short coordinate (same as manifest format)
+act get-skill anthropics/skills/skills/doc-coauthoring
+
+# Install globally (~/.claude/skills/) instead of project-local
+act get-skill -g https://github.com/org/repo/tree/main/skills/my-skill
+
+# Override the derived skill directory name
+act get-skill --name my-alias org/repo/skills/original-name
+```
+
+| Flag | Description |
+| ---- | ----------- |
+| `-g` / `--global` | Install into **`~/.claude/skills/`** instead of project-local **`.claude/skills/`** |
+| `-n` / `--name`   | Override the auto-derived skill key (also enables SKILL.md name validation) |
+| `-C` / `--project-root` | Project root (default: cwd) |
 
 ## Coordinate forms
 

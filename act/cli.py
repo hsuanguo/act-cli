@@ -8,6 +8,7 @@ import typer
 
 from act import __version__
 from act.config import find_default_manifest, load_act_toml
+from act.install import install_skill_from_source
 from act.sync import run_sync
 
 _MANIFEST_HELP = (
@@ -110,6 +111,55 @@ def version_command(
 ) -> None:
     """Print act-cli version and project name when a manifest is present."""
     _show_version(file)
+
+
+@app.command("get-skill")
+def get_skill_command(
+    source: str = typer.Argument(
+        help="GitHub URL or owner/repo\\[/path] coordinate for the skill",
+    ),
+    global_install: bool = typer.Option(
+        False,
+        "--global",
+        "-g",
+        help="Install into global ~/.claude/skills/ instead of project-local",
+    ),
+    name: str | None = typer.Option(
+        None,
+        "--name",
+        "-n",
+        help="Override the auto-derived skill directory name (enables SKILL.md name validation)",
+    ),
+    project_root: Path | None = typer.Option(
+        None,
+        "--project-root",
+        "-C",
+        help="Project directory (default: current working directory)",
+    ),
+) -> None:
+    """Fetch a skill from a GitHub URL or coordinate and install it."""
+    if global_install:
+        target_dir = Path.home() / ".claude" / "skills"
+    else:
+        root = project_root or Path.cwd()
+        target_dir = root / ".claude" / "skills"
+
+    validate = name is not None
+    try:
+        key, overwritten = install_skill_from_source(
+            source,
+            target_dir=target_dir,
+            skill_key=name,
+            validate_name=validate,
+        )
+    except (ValueError, FileNotFoundError) as e:
+        typer.echo(f"Error: {e}", err=True)
+        raise typer.Exit(1) from e
+
+    dest = target_dir / key
+    if overwritten:
+        typer.echo(f"Warning: overwritten existing skill {key!r}")
+    typer.echo(f"Installed skill {key!r} → {dest}")
 
 
 def main() -> None:
