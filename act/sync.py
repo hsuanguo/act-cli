@@ -24,13 +24,21 @@ def run_sync(cfg: ActConfig, project_root: Path) -> None:
             typer.echo(f"Skill {key!r} ← {coord!r}")
             install_skill_from_coordinate(key, coord, project_root)
 
-        for spec in cfg.uv_tools:
-            typer.echo(f"uv tool install {spec!r} …")
-            subprocess.run(["uv", "tool", "install", spec], check=True, cwd=project_root)
+        for tool in cfg.uv_tools:
+            typer.echo(f"uv tool install {tool.spec!r} …")
+            subprocess.run(["uv", "tool", "install", tool.spec], check=True, cwd=project_root)
+            if tool.init:
+                typer.echo(f"Initializing {tool.spec!r} (this may take a while) …")
+                subprocess.run(tool.init, shell=True, check=True, cwd=project_root)
+                typer.echo(f"Initialized {tool.spec!r}")
 
-        for spec in cfg.npm_tools:
-            typer.echo(f"npm -g install {spec!r} …")
-            subprocess.run(["npm", "-g", "install", spec], check=True, cwd=project_root)
+        for tool in cfg.npm_tools:
+            typer.echo(f"npm -g install {tool.spec!r} …")
+            subprocess.run(["npm", "-g", "install", tool.spec], check=True, cwd=project_root)
+            if tool.init:
+                typer.echo(f"Initializing {tool.spec!r} (this may take a while) …")
+                subprocess.run(tool.init, shell=True, check=True, cwd=project_root)
+                typer.echo(f"Initialized {tool.spec!r}")
     except subprocess.CalledProcessError as e:
         typer.echo(f"Error: external command failed with exit code {e.returncode}", err=True)
         raise typer.Exit(e.returncode) from e

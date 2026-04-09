@@ -60,6 +60,8 @@ doc-coauthoring = "anthropics/skills/skills/doc-coauthoring"
 [dependencies.tools.uv]
 ruff = "ruff@0.8.0"
 lwiki = "git+https://github.com/hsuanguo/llm-wiki.git"
+# Inline table with an init command that runs after install:
+docling = { spec = "docling", init = "docling --version" }
 
 [dependencies.tools.npm]
 prettier = "prettier@3"
@@ -96,7 +98,7 @@ Grab a skill ad-hoc without editing the manifest:
 
 ```bash
 # Full GitHub URL
-act get-skill https://github.com/existential-birds/beagle/tree/main/plugins/beagle-core/skills/docling
+act get-skill https://github.com/anthropics/skills/tree/main/skills/pdf
 
 # Short coordinate (same as manifest format)
 act get-skill anthropics/skills/skills/doc-coauthoring
