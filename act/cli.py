@@ -128,7 +128,7 @@ def get_skill_command(
         None,
         "--name",
         "-n",
-        help="Override the auto-derived skill directory name (enables SKILL.md name validation)",
+        help="Override the skill directory name and rewrite SKILL.md name to match",
     ),
     project_root: Path | None = typer.Option(
         None,
@@ -144,13 +144,11 @@ def get_skill_command(
         root = project_root or Path.cwd()
         target_dir = root / ".claude" / "skills"
 
-    validate = name is not None
     try:
         key, overwritten = install_skill_from_source(
             source,
             target_dir=target_dir,
             skill_key=name,
-            validate_name=validate,
         )
     except (ValueError, FileNotFoundError) as e:
         typer.echo(f"Error: {e}", err=True)

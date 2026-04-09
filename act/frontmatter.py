@@ -36,3 +36,27 @@ def validate_skill_name(content: str, skill_key: str) -> None:
         raise ValueError(
             f"SKILL.md name mismatch: frontmatter has name={name!r} but act.toml key is {skill_key!r}"
         )
+
+
+def rewrite_skill_name(content: str, new_name: str) -> str:
+    """Return *content* with the frontmatter ``name`` field set to *new_name*.
+
+    If there is no frontmatter or no ``name:`` line, the content is returned unchanged.
+    """
+    lines = content.splitlines(keepends=True)
+    if not lines or lines[0].strip() != "---":
+        return content
+    end = None
+    for i in range(1, len(lines)):
+        if lines[i].strip() == "---":
+            end = i
+            break
+    if end is None:
+        return content
+    for i in range(1, end):
+        stripped = lines[i].lstrip()
+        if stripped.startswith("name:"):
+            indent = lines[i][: len(lines[i]) - len(stripped)]
+            lines[i] = f"{indent}name: {new_name}\n"
+            return "".join(lines)
+    return content

@@ -76,8 +76,8 @@ def test_get_skill_global_flag(tmp_path: Path) -> None:
     assert (fake_home / ".claude" / "skills" / "foo" / "SKILL.md").is_file()
 
 
-def test_get_skill_name_override(tmp_path: Path) -> None:
-    fixture = _make_skill_fixture(tmp_path, "skills/docling", "my-alias")
+def test_get_skill_name_override_rewrites(tmp_path: Path) -> None:
+    fixture = _make_skill_fixture(tmp_path, "skills/docling", "docling")
     proj = tmp_path / "proj"
     proj.mkdir()
 
@@ -88,7 +88,9 @@ def test_get_skill_name_override(tmp_path: Path) -> None:
 
     assert result.exit_code == 0, result.output
     assert "Installed skill 'my-alias'" in result.output
-    assert (proj / ".claude" / "skills" / "my-alias" / "SKILL.md").is_file()
+    skill_md = proj / ".claude" / "skills" / "my-alias" / "SKILL.md"
+    assert skill_md.is_file()
+    assert "name: my-alias" in skill_md.read_text(encoding="utf-8")
 
 
 def test_get_skill_overwrite_warning(tmp_path: Path) -> None:
@@ -125,15 +127,19 @@ def test_get_skill_missing_skill_md(tmp_path: Path) -> None:
     assert "SKILL.md not found" in result.output
 
 
-def test_get_skill_name_mismatch(tmp_path: Path) -> None:
+def test_get_skill_name_override_different_name(tmp_path: Path) -> None:
+    """--name with a different name rewrites SKILL.md instead of erroring."""
     fixture = _make_skill_fixture(tmp_path, "skills/docling", "docling")
     proj = tmp_path / "proj"
     proj.mkdir()
 
     with patch("act.install._run_git_clone", lambda url, dest: _fake_clone(fixture, url, dest)):
         result = runner.invoke(
-            app, ["get-skill", "org/repo/skills/docling", "--name", "wrong-name", "-C", str(proj)]
+            app, ["get-skill", "org/repo/skills/docling", "--name", "custom-name", "-C", str(proj)]
         )
 
-    assert result.exit_code == 1
-    assert "name mismatch" in result.output
+    assert result.exit_code == 0, result.output
+    assert "Installed skill 'custom-name'" in result.output
+    skill_md = proj / ".claude" / "skills" / "custom-name" / "SKILL.md"
+    assert skill_md.is_file()
+    assert "name: custom-name" in skill_md.read_text(encoding="utf-8")

@@ -8,7 +8,7 @@ import tempfile
 from pathlib import Path
 
 from act.coordinates import CoordKind, clone_url, derive_skill_key, parse_coordinate, resolve_source
-from act.frontmatter import validate_skill_name
+from act.frontmatter import rewrite_skill_name, validate_skill_name
 
 
 def _run_git_clone(url: str, dest: Path) -> None:
@@ -91,13 +91,22 @@ def install_skill_from_coordinate(
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+def _rewrite_skill_md_name(skill_md: Path, new_name: str) -> None:
+    """Rewrite the ``name`` field in a SKILL.md to *new_name*."""
+    content = skill_md.read_text(encoding="utf-8")
+    updated = rewrite_skill_name(content, new_name)
+    skill_md.write_text(updated, encoding="utf-8")
+
+
 def install_skill_from_source(
     source: str,
     target_dir: Path,
     skill_key: str | None = None,
-    validate_name: bool = False,
 ) -> tuple[str, bool]:
     """Fetch a skill from a GitHub URL or short coordinate.
+
+    When *skill_key* is provided the SKILL.md ``name`` frontmatter field is
+    rewritten to match so the folder name and internal name stay in sync.
 
     Returns (resolved_key, was_overwrite).
     """
@@ -106,6 +115,7 @@ def install_skill_from_source(
     url = clone_url(parsed)
     target = target_dir / key
     overwritten = target.exists()
+    needs_rename = skill_key is not None
 
     tmp = Path(tempfile.mkdtemp(prefix="act-clone-"))
     repo_dir = tmp / "repo"
@@ -119,8 +129,8 @@ def install_skill_from_source(
                     f"SKILL.md not found at {parsed.path_in_repo!r} in repository"
                 )
             content = src_file.read_text(encoding="utf-8")
-            if validate_name:
-                validate_skill_name(content, key)
+            if needs_rename:
+                content = rewrite_skill_name(content, key)
             if target.exists():
                 shutil.rmtree(target)
             target.mkdir(parents=True, exist_ok=True)
@@ -134,9 +144,8 @@ def install_skill_from_source(
                 raise FileNotFoundError(
                     f"SKILL.md not found under {parsed.path_in_repo!r} in repository"
                 )
-            if validate_name:
-                content = skill_md.read_text(encoding="utf-8")
-                validate_skill_name(content, key)
+            if needs_rename:
+                _rewrite_skill_md_name(skill_md, key)
             _replace_tree(src_dir, target)
             return key, overwritten
 
@@ -144,9 +153,8 @@ def install_skill_from_source(
         root_skill = repo_dir / "SKILL.md"
         if not root_skill.is_file():
             raise FileNotFoundError("No SKILL.md at repository root for owner/repo coordinate")
-        if validate_name:
-            content = root_skill.read_text(encoding="utf-8")
-            validate_skill_name(content, key)
+        if needs_rename:
+            _rewrite_skill_md_name(root_skill, key)
         _copy_repo_root_non_dot(repo_dir, target)
         return key, overwritten
     finally:

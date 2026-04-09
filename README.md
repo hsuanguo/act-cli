@@ -111,7 +111,7 @@ act get-skill --name my-alias org/repo/skills/original-name
 | Flag | Description |
 | ---- | ----------- |
 | `-g` / `--global` | Install into **`~/.claude/skills/`** instead of project-local **`.claude/skills/`** |
-| `-n` / `--name`   | Override the auto-derived skill key (also enables SKILL.md name validation) |
+| `-n` / `--name`   | Override the skill directory name and rewrite the SKILL.md `name` field to match |
 | `-C` / `--project-root` | Project root (default: cwd) |
 
 ## Coordinate forms

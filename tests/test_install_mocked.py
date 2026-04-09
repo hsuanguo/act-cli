@@ -149,40 +149,25 @@ def test_source_overwrite(tmp_path: Path) -> None:
     assert "Foo v2" in (target / "foo" / "SKILL.md").read_text(encoding="utf-8")
 
 
-def test_source_custom_key(tmp_path: Path) -> None:
+def test_source_custom_key_rewrites_name(tmp_path: Path) -> None:
+    """--name rewrites the SKILL.md frontmatter name to keep folder and name in sync."""
     fixture = tmp_path / "upstream"
     skill_dir = fixture / "skills" / "docling"
     skill_dir.mkdir(parents=True)
     (skill_dir / "SKILL.md").write_text(
-        "---\nname: my-alias\ndescription: d\n---\n# Docling\n",
+        "---\nname: docling\ndescription: d\n---\n# Docling\n",
         encoding="utf-8",
     )
 
     target = tmp_path / "skills"
     with patch("act.install._run_git_clone", lambda url, dest: _fake_clone(fixture, url, dest)):
         key, _ = install_skill_from_source(
-            "o/r/skills/docling", target_dir=target, skill_key="my-alias", validate_name=True
+            "o/r/skills/docling", target_dir=target, skill_key="my-alias"
         )
 
     assert key == "my-alias"
-    assert (target / "my-alias" / "SKILL.md").is_file()
-
-
-def test_source_name_validation_mismatch(tmp_path: Path) -> None:
-    fixture = tmp_path / "upstream"
-    skill_dir = fixture / "skills" / "docling"
-    skill_dir.mkdir(parents=True)
-    (skill_dir / "SKILL.md").write_text(
-        "---\nname: docling\ndescription: d\n---\n",
-        encoding="utf-8",
-    )
-
-    target = tmp_path / "skills"
-    with patch("act.install._run_git_clone", lambda url, dest: _fake_clone(fixture, url, dest)):
-        with pytest.raises(ValueError, match="name mismatch"):
-            install_skill_from_source(
-                "o/r/skills/docling", target_dir=target, skill_key="wrong-name", validate_name=True
-            )
+    installed_md = (target / "my-alias" / "SKILL.md").read_text(encoding="utf-8")
+    assert "name: my-alias" in installed_md
 
 
 def test_source_github_url(tmp_path: Path) -> None:
