@@ -9,18 +9,40 @@ from typing import Any
 
 
 @dataclass
+class ToolSpec:
+    spec: str
+    init: str | None = None
+
+
+@dataclass
 class ActConfig:
     project_name: str
     project_description: str
     skills: dict[str, str]
-    uv_tools: list[str]
-    npm_tools: list[str]
+    uv_tools: list[ToolSpec]
+    npm_tools: list[ToolSpec]
 
 
-def _table_values(d: dict[str, Any] | None) -> list[str]:
+def _parse_tool_entries(d: dict[str, Any] | None) -> list[ToolSpec]:
     if not d:
         return []
-    return [str(v) for v in d.values()]
+    result: list[ToolSpec] = []
+    for key, val in d.items():
+        if isinstance(val, str):
+            result.append(ToolSpec(spec=val))
+        elif isinstance(val, dict):
+            spec = val.get("spec")
+            if not spec or not isinstance(spec, str):
+                raise ValueError(
+                    f"Tool entry {key!r}: inline table must include a 'spec' string"
+                )
+            init = val.get("init")
+            if init is not None and not isinstance(init, str):
+                raise ValueError(f"Tool entry {key!r}: 'init' must be a string")
+            result.append(ToolSpec(spec=spec.strip(), init=init.strip() if init else None))
+        else:
+            raise ValueError(f"Tool entry {key!r}: expected a string or inline table")
+    return result
 
 
 def _parse_act_root(data: dict[str, Any]) -> ActConfig:
@@ -38,7 +60,9 @@ def _parse_act_root(data: dict[str, Any]) -> ActConfig:
     skills_raw = data.get("skills")
     if not isinstance(skills_raw, dict):
         skills_raw = {}
-    skills: dict[str, str] = {str(k): str(v).strip() for k, v in skills_raw.items() if str(v).strip()}
+    skills: dict[str, str] = {
+        str(k): str(v).strip() for k, v in skills_raw.items() if str(v).strip()
+    }
 
     deps = data.get("dependencies") or {}
     if not isinstance(deps, dict):
@@ -50,8 +74,8 @@ def _parse_act_root(data: dict[str, Any]) -> ActConfig:
     uv_tbl = tools.get("uv")
     npm_tbl = tools.get("npm")
 
-    uv_tools = _table_values(uv_tbl if isinstance(uv_tbl, dict) else None)
-    npm_tools = _table_values(npm_tbl if isinstance(npm_tbl, dict) else None)
+    uv_tools = _parse_tool_entries(uv_tbl if isinstance(uv_tbl, dict) else None)
+    npm_tools = _parse_tool_entries(npm_tbl if isinstance(npm_tbl, dict) else None)
 
     return ActConfig(
         project_name=name,
